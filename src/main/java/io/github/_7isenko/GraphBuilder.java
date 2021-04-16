@@ -93,35 +93,62 @@ public class GraphBuilder {
         chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
     }
 
-    public static void createSystemGraph(ArrayList<Map<Double, Double>> mapArrayList, String name, String[] functions) {
-
-    }
-
-
-    public static void createChart(ArrayList<Map<Double, Double>> mapArrayList, String name, String[] functions) {
-        XYChart chart = new XYChartBuilder().width(600).height(500).title(name).xAxisTitle("Xi").yAxisTitle("fi(x)").build();
-        for (int j = 0, mapArrayListSize = mapArrayList.size(); j < mapArrayListSize; j++) {
-            Map<Double, Double> result = mapArrayList.get(j);
-            int size = result.size();
-            double[] xData = new double[size];
-            double[] yData = new double[size];
-            int i = 0;
-            for (Map.Entry<Double, Double> entry : result.entrySet()) {
-                xData[i] = entry.getKey();
-                yData[i] = entry.getValue();
-                i++;
-            }
-            XYSeries series = chart.addSeries(functions[j], xData, yData);
-            series.setMarker(SeriesMarkers.CIRCLE);
-            ThreadLocalRandom random = ThreadLocalRandom.current();
-            series.setLineColor(new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
-            series = chart.addSeries("Final answer" + j, Arrays.copyOfRange(xData, size - 1, size), Arrays.copyOfRange(yData, size - 1, size));
-            series.setMarkerColor(Color.RED);
-            series.setMarker(SeriesMarkers.CROSS);
+    public static void createTwoDimensionalSystemChart(XYChart chart, ArrayList<Map<Double, Double>> mapArrayList) {
+        Map<Double, Double> result = mapArrayList.get(0);
+        Map<Double, Double> result2 = mapArrayList.get(1);
+        int size = result.size();
+        double[] xData = new double[size];
+        double[] yData = new double[size];
+        int i = 0;
+        for (Map.Entry<Double, Double> entry : result.entrySet()) {
+            xData[i] = entry.getKey();
+            i++;
         }
+        i = 0;
+        for (Map.Entry<Double, Double> entry : result2.entrySet()) {
+            yData[i] = entry.getKey();
+            i++;
+        }
+        XYSeries series = chart.addSeries("solved(x1, x2)", xData, yData);
+        series.setMarker(SeriesMarkers.CIRCLE);
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        series.setLineColor(new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+        series = chart.addSeries("Final answer", Arrays.copyOfRange(xData, size - 1, size), Arrays.copyOfRange(yData, size - 1, size));
+        series.setMarkerColor(Color.RED);
+        series.setMarker(SeriesMarkers.CROSS);
+
         chart.getStyler().setMarkerSize(8);
         new SwingWrapper<>(chart).displayChart();
     }
+
+    public static XYChart createTwoDimensionalSystemGraph(PolynomialFunction[] functions, boolean display) {
+        XYChart chart = new XYChartBuilder().width(600).height(400).title("Your function").xAxisTitle("x0").yAxisTitle("x1").build();
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
+
+        for (int i = 0, functionsLength = functions.length; i < functionsLength; i++) {
+            PolynomialFunction polynomialFunction = functions[i];
+            ArrayList<Double> xValues = new ArrayList<>();
+            ArrayList<Double> yValues = new ArrayList<>();
+            for (double x = -7; x <= 7; x += 0.003) {
+                double answer = polynomialFunction.solve(new double[]{x, 0});
+                if (Double.isFinite(answer)) {
+                    xValues.add(x);
+                    yValues.add(answer);
+                } else {
+                    xValues.add(x);
+                    yValues.add(polynomialFunction.solve(new double[]{x + 0.001, 0}));
+                }
+            }
+            chart.addSeries("f(x,y)" + i, xValues, yValues).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line).setMarker(SeriesMarkers.NONE).setLineColor(Color.GREEN);
+            chart.getStyler().setZoomEnabled(true);
+        }
+
+        if (display) {
+            new SwingWrapper<>(chart).displayChart().setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        }
+        return chart;
+    }
+
 
     public static void createExampleGraph(Function function, double leftBorder, double rightBorder) {
         XYChart chart = new XYChartBuilder().width(600).height(400).title("Your function").xAxisTitle("X").yAxisTitle("Y").build();

@@ -1,5 +1,7 @@
 package io.github._7isenko;
 
+import org.knowm.xchart.XYChart;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -88,10 +90,6 @@ public class Main {
                 }
             }
 
-
-
-
-
             double initialEstimate = 0;
             if (signum(secondDerivative.solve(xLeft)) == signum(chosenFunction.solve(xLeft))) {
                 initialEstimate = xLeft;
@@ -130,8 +128,8 @@ public class Main {
             System.out.printf("Метод Ньютона_: x = %.4f; y = %.4f, количество итераций: %d", nX, nY, newtonIterations);
         } else {
             System.out.println("Выберите систему, решения которой хотите найти");
-            System.out.println("1 - { sin(a*x1 − x2) + b*x1 + c = 0");
-            System.out.println("    { d*x^2 + e*y^2 + f = 0\n");
+            System.out.println("1 - { sin(a*x1) − x2 + b*x1 + c = 0");
+            System.out.println("    { d*x1^2 + e*x2^2 + f = 0\n");
             System.out.println("2 - { a*cos(x1) - b = 0");
             System.out.println("    { c*cos(x2) - d = 0");
             System.out.println("    { e*cos(x3) - f = 0");
@@ -157,22 +155,28 @@ public class Main {
             accuracy = inputReader.readDoubleFromConsole();
 
             PolynomialFunction[] chosenFunctions = new PolynomialFunction[0];
+            PolynomialFunction[] chosenSolvedFunctions = new PolynomialFunction[0];
             PolynomialFunction[][] derivatives = new PolynomialFunction[0][0];
             double[] estimate = new double[0];
             String[] strFunctions = new String[0];
             switch (chosenAlgorithm) {
                 case 1:
-                    // { sin(a*x1 − x2) + b*x1 + c = 0
+                    // { sin(a*x1) − x2 + b*x1 + c = 0
                     // { d*x1^2 + e*x2^2 + f = 0
                     chosenFunctions = new PolynomialFunction[]{
-                            xVec -> sin(a * xVec[0] - xVec[1]) + b * xVec[0] + c,
+                            xVec -> sin(a * xVec[0]) - xVec[1] + b * xVec[0] + c,
                             xVec -> d * (xVec[0] * xVec[0]) + e * (xVec[1] * xVec[1]) + f};
+                    chosenSolvedFunctions = new PolynomialFunction[]{
+                            xVec -> sin(a * xVec[0]) + b * xVec[0] + c, // y =c+bx+sin(ax)
+                            xVec -> sqrt(-d * (xVec[0] * xVec[0]) - f) * sqrt(e), // y = sqrt(-f-dx^2)*sqrt(e)
+                            xVec -> -sqrt(-d * (xVec[0] * xVec[0]) - f) * sqrt(e)  // y = -sqrt(-f-dx^2)*sqrt(e)
+                    };
                     derivatives = new PolynomialFunction[][]{
-                            {xVec -> a * cos(a * xVec[0] - xVec[1]) + b, xVec -> d * 2 * xVec[0]},
-                            {xVec -> -cos(a * xVec[0] - xVec[1]), xVec -> 2 * e * xVec[1]}};
+                            {xVec -> a * cos(a * xVec[0]) + b, xVec -> d * 2 * xVec[0]},
+                            {xVec -> -1, xVec -> 2 * e * xVec[1]}};
                     estimate = new double[2];
                     strFunctions = new String[2];
-                    strFunctions[0] = String.format("sin(%.4f*x1 - x2) + %.4f*x1 + %.4f", a, b, c);
+                    strFunctions[0] = String.format("sin(%.4f*x1) - x2 + %.4f*x1 + %.4f", a, b, c);
                     strFunctions[1] = String.format("%.4f*x1^2 + %.4f*x2^2 + %.4f", d, e, f);
                     break;
                 case 2:
@@ -193,15 +197,26 @@ public class Main {
                     strFunctions[1] = String.format("%.4f*cos(x2) - %.4f", c, d);
                     strFunctions[2] = String.format("%.4f*cos(x3) - %.4f", e, f);
                     break;
+                default:
+                    System.out.println("я такое на знаю!");
+                    return;
             }
+            XYChart chart = null;
+            if (chosenAlgorithm == 1)
+               chart = GraphBuilder.createTwoDimensionalSystemGraph(chosenSolvedFunctions, true);
+            else {
+
+            }
+
             System.out.println("Введите начальное приближение");
             for (int i = 0; i < estimate.length; i++) {
                 System.out.printf("x%d: ", i);
                 estimate[i] = inputReader.readDoubleFromConsole();
             }
 
-            ArrayList<Map<Double, Double>> result = new NewtonAlgorithmExtended(chosenFunctions, derivatives, accuracy).solve(estimate);
-            GraphBuilder.createChart(result, "Newton's Algorithm", strFunctions);
+            NewtonAlgorithmExtended newtonAlgorithmExtended = new NewtonAlgorithmExtended(chosenFunctions, derivatives, accuracy);
+            ArrayList<Map<Double, Double>> result = newtonAlgorithmExtended.solve(estimate);
+            GraphBuilder.createTwoDimensionalSystemChart(chart, result);
 
             System.out.println("Ответ, полученный методом Ньютона: ");
             for (int i = 0, resultSize = result.size(); i < resultSize; i++) {
@@ -210,6 +225,7 @@ public class Main {
                 double y = map.values().toArray(new Double[0])[map.size() - 1];
                 System.out.printf("x%d = %f ; f%d(x) = %f\n", i, x, i, y);
             }
+            System.out.println("Количество итераций: " + newtonAlgorithmExtended.getIterations());
 
         }
 

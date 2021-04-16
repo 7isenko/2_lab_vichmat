@@ -57,4 +57,8 @@ public class NewtonAlgorithmExtended {
 
         return points;
     }
+
+    public int getIterations() {
+        return iterations;
+    }
 }
