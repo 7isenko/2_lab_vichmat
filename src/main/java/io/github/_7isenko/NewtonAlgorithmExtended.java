@@ -13,6 +13,7 @@ public class NewtonAlgorithmExtended {
     private final PolynomialFunction[][] derivatives;
     private final double accuracy;
     private final ArrayList<Map<Double, Double>> points;
+    private int iterations = 0;
 
     public NewtonAlgorithmExtended(PolynomialFunction[] functions, PolynomialFunction[][] derivatives, double accuracy) {
         this.functions = functions;
@@ -29,9 +30,8 @@ public class NewtonAlgorithmExtended {
         }
 
         boolean quit = false;
-        int k = 0;
         do {
-            k++;
+            iterations++;
             double[] newVector = new double[xVector.length];
             for (int i = 0; i < functions.length; i++) {
                 double summaryDerivatives = 0;
@@ -53,7 +53,7 @@ public class NewtonAlgorithmExtended {
                 quit = true;
             }
             xVector = newVector;
-        } while (!quit && k < 10000);
+        } while (!quit && iterations < 10000);
 
         return points;
     }

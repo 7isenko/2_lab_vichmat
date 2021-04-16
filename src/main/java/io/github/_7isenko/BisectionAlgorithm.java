@@ -10,11 +10,13 @@ public class BisectionAlgorithm {
     private final Function function;
     private final double accuracy;
     private final Map<Double, Double> points;
+    private int iterations;
 
     public BisectionAlgorithm(Function function, double accuracy) {
         this.function = function;
         this.accuracy = accuracy;
         this.points = new LinkedHashMap<>();
+        this.iterations = 0;
     }
 
     public Map<Double, Double> solve(double xLeft, double xRight) {
@@ -38,16 +40,14 @@ public class BisectionAlgorithm {
             return points;
         }
 
-        double xMid = xLeft + (xRight - xLeft) / 2;
-        if (Double.isNaN(function.solve(xMid))) {
-            xRight += xRight / 10; // Если произошло деление на ноль, стоит немного сдвинуть первоначальные границы
-        }
-
-
         while (xRight - xLeft > accuracy) {
-
-            xMid = xLeft + (xRight - xLeft) / 2;
+            iterations++;
+            double xMid = xLeft + (xRight - xLeft) / 2;
             answer = function.solve(xMid);
+            if (!Double.isFinite(answer)) {
+                xMid += accuracy;
+                answer = function.solve(xMid);
+            }
 
             if (Math.abs(answer) > accuracy) {
                 if (Math.signum(function.solve(xLeft)) != Math.signum(answer)) {
@@ -62,5 +62,9 @@ public class BisectionAlgorithm {
         }
 
         return points;
+    }
+
+    public int getIterations() {
+        return iterations;
     }
 }
