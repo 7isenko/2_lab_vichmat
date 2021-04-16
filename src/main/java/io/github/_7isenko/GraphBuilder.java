@@ -27,7 +27,7 @@ public class GraphBuilder {
         buildChart(function, leftBorder, rightBorder, size, xData, yData, chart);
 
         for (int i = 0; i < xData.length; i++) {
-            XYSeries series = chart.addSeries("vertical" + i, new double[]{xData[i], xData[i]}, new double[]{yData[i] - 100, yData[i] + 100});
+            XYSeries series = chart.addSeries("vertical" + i, new double[]{xData[i], xData[i]}, new double[]{yData[i] - 10000, yData[i] + 10000});
             series.setMarker(SeriesMarkers.NONE);
             series.setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line);
             series.setLineColor(Color.RED);
