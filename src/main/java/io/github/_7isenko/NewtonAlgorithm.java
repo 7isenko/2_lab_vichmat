@@ -26,7 +26,7 @@ public class NewtonAlgorithm {
 
         // В случае деления на ноль пытаюсь получить приближенные значения
         if (Double.isNaN(function.solve(estimate))) {
-            estimate = accuracy;
+            estimate += accuracy;
         }
 
         double prevEst;
