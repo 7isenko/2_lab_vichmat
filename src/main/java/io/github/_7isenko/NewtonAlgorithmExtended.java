@@ -33,12 +33,15 @@ public class NewtonAlgorithmExtended {
         do {
             iterations++;
             double[] newVector = new double[xVector.length];
-            for (int i = 0; i < functions.length; i++) {
+            for (int i = 0; i < xVector.length; i++) {
                 double summaryDerivatives = 0;
-                for (int j = 0; j < xVector.length; j++) {
-                    summaryDerivatives += derivatives[i][j].solve(xVector);
+                for (int j = 0; j < functions.length; j++) {
+                    summaryDerivatives += derivatives[j][i].solve(xVector);
                 }
-                double newX = xVector[i] - functions[i].solve(xVector)/summaryDerivatives;
+                if (summaryDerivatives == 0) {
+                    summaryDerivatives += accuracy / 2;
+                }
+                double newX = xVector[i] - functions[i].solve(xVector) / summaryDerivatives;
                 newVector[i] = newX;
             }
             for (int i = 0; i < newVector.length; i++) {

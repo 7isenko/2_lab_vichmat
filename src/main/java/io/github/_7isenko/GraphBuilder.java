@@ -6,9 +6,7 @@ import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -96,24 +94,21 @@ public class GraphBuilder {
     public static void createTwoDimensionalSystemChart(XYChart chart, ArrayList<Map<Double, Double>> mapArrayList) {
         Map<Double, Double> result = mapArrayList.get(0);
         Map<Double, Double> result2 = mapArrayList.get(1);
-        int size = result.size();
-        double[] xData = new double[size];
-        double[] yData = new double[size];
-        int i = 0;
+
+        ArrayList<Double> xData = new ArrayList<>();
+        ArrayList<Double> yData = new ArrayList<>();
+
         for (Map.Entry<Double, Double> entry : result.entrySet()) {
-            xData[i] = entry.getKey();
-            i++;
+            xData.add(entry.getKey());
         }
-        i = 0;
         for (Map.Entry<Double, Double> entry : result2.entrySet()) {
-            yData[i] = entry.getKey();
-            i++;
+            yData.add(entry.getKey());
         }
         XYSeries series = chart.addSeries("solved(x1, x2)", xData, yData);
         series.setMarker(SeriesMarkers.CIRCLE);
         ThreadLocalRandom random = ThreadLocalRandom.current();
         series.setLineColor(new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
-        series = chart.addSeries("Final answer", Arrays.copyOfRange(xData, size - 1, size), Arrays.copyOfRange(yData, size - 1, size));
+        series = chart.addSeries("Final answer", xData.subList(xData.size()-1, xData.size()), yData.subList(yData.size()-1, yData.size()));
         series.setMarkerColor(Color.RED);
         series.setMarker(SeriesMarkers.CROSS);
 
@@ -122,7 +117,7 @@ public class GraphBuilder {
     }
 
     public static XYChart createTwoDimensionalSystemGraph(PolynomialFunction[] functions, boolean display) {
-        XYChart chart = new XYChartBuilder().width(600).height(400).title("Your function").xAxisTitle("x0").yAxisTitle("x1").build();
+        XYChart chart = new XYChartBuilder().width(600).height(400).title("Your function").xAxisTitle("x1").yAxisTitle("x2").build();
         chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNE);
 
         for (int i = 0, functionsLength = functions.length; i < functionsLength; i++) {
