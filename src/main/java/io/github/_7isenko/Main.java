@@ -130,11 +130,15 @@ public class Main {
             System.out.println("Выберите систему, решения которой хотите найти");
             System.out.println("1 - { sin(a*x1) − x2 + b*x1 + c = 0");
             System.out.println("    { d*x1^2 + e*x2^2 + f = 0\n");
-            System.out.println("2 - { a*cos(x1) - b - x2 = 0");
-            System.out.println("    { c*cos(x1) - d - x2 = 0");
-            System.out.println("    { e*cos(x1) - f - x2 = 0");
+            System.out.println("2 - { a*cos(x1) - b + x2 = 0");
+            System.out.println("    { c*cos(x1) - d + x2 = 0");
+            System.out.println("    { e*cos(x1) - f + x2 = 0");
 
             int chosenAlgorithm = inputReader.readIntFromConsole();
+            if (chosenAlgorithm!= 1 && chosenAlgorithm != 2) {
+                System.out.println("Я такое не знаю!");
+                return;
+            }
 
             double a, b, c, d, e, f;
 
@@ -168,45 +172,43 @@ public class Main {
                             xVec -> d * (xVec[0] * xVec[0]) + e * (xVec[1] * xVec[1]) + f};
                     chosenSolvedFunctions = new PolynomialFunction[]{
                             xVec -> sin(a * xVec[0]) + b * xVec[0] + c, // y =c+bx+sin(ax)
-                            xVec -> sqrt(-d * (xVec[0] * xVec[0]) - f) * sqrt(e), // y = sqrt(-f-dx^2)*sqrt(e)
-                            xVec -> -sqrt(-d * (xVec[0] * xVec[0]) - f) * sqrt(e)  // y = -sqrt(-f-dx^2)*sqrt(e)
+                            xVec -> sqrt(-d * (xVec[0] * xVec[0]) - f) * sqrt(1 / e), // y = sqrt(-f-dx^2)*sqrt(1/e)
+                            xVec -> -sqrt(-d * (xVec[0] * xVec[0]) - f) * sqrt(1 / e)  // y = -sqrt(-f-dx^2)*sqrt(1/e)
                     };
                     derivatives = new PolynomialFunction[][]{
-                            {xVec -> a * cos(a * xVec[0]) + b, xVec -> -1},
-                            {xVec -> d * 2 * xVec[0], xVec -> 2 * e * xVec[1]}};
+                            {xVec -> a * cos(a * xVec[0]) + b, xVec -> d * 2 * xVec[0]},
+                            {xVec -> -1, xVec -> 2 * e * xVec[1]}};
                     estimate = new double[2];
                     strFunctions = new String[2];
                     strFunctions[0] = String.format("sin(%.4f*x1) - x2 + %.4f*x1 + %.4f", a, b, c);
                     strFunctions[1] = String.format("%.4f*x1^2 + %.4f*x2^2 + %.4f", d, e, f);
                     break;
                 case 2:
-                    // { a*cos(x1) - b -x2 = 0
-                    // { c*cos(x1) - d -x2 = 0
-                    // { e*cos(x1) - f -x2 = 0
+                    // { a*cos(x1) - b + x2 = 0
+                    // { c*cos(x1) - d + x2 = 0
+                    // { e*cos(x1) - f + x2 = 0
                     chosenFunctions = new PolynomialFunction[]{
-                            xVec -> a * cos(xVec[0]) - b - xVec[1],
-                            xVec -> c * cos(xVec[0]) - d - xVec[1],
-                            xVec -> e * cos(xVec[0]) - f - xVec[1]};
+                            xVec -> a * cos(xVec[0]) - b + xVec[1],
+                            xVec -> c * cos(xVec[0]) - d + xVec[1],
+                            xVec -> e * cos(xVec[0]) - f + xVec[1]};
                     chosenSolvedFunctions = new PolynomialFunction[]{
-                            xVec -> a * cos(xVec[0]) - b,
-                            xVec -> c * cos(xVec[0]) - d,
-                            xVec -> e * cos(xVec[0]) - f};
+                            xVec -> b - a * cos(xVec[0]),
+                            xVec -> d - c * cos(xVec[0]),
+                            xVec -> f - e * cos(xVec[0])};
                     derivatives = new PolynomialFunction[][]{
-                            {xVec -> -a * sin(xVec[0]), xVec -> -1},
-                            {xVec -> -c * sin(xVec[0]), xVec -> -1},
-                            {xVec -> -e * sin(xVec[0]), xVec -> -1}};
+                            {xVec -> a * sin(xVec[0]), xVec -> c * sin(xVec[0]), xVec -> e * sin(xVec[0])},
+                            {xVec -> 1, xVec -> 1, xVec -> 1}};
                     estimate = new double[2];
                     strFunctions = new String[3];
-                    strFunctions[0] = String.format("%.4f*cos(x1) - %.4f", a, b);
-                    strFunctions[1] = String.format("%.4f*cos(x2) - %.4f", c, d);
-                    strFunctions[2] = String.format("%.4f*cos(x3) - %.4f", e, f);
+                    strFunctions[0] = String.format("%.4f*cos(x1) - %.4f + x2", a, b);
+                    strFunctions[1] = String.format("%.4f*cos(x1) - %.4f + x2", c, d);
+                    strFunctions[2] = String.format("%.4f*cos(x1) - %.4f + x2", e, f);
                     break;
                 default:
                     System.out.println("я такое на знаю!");
                     return;
             }
             XYChart chart = GraphBuilder.createTwoDimensionalSystemGraph(chosenSolvedFunctions, true);
-            ;
 
             System.out.println("Введите начальное приближение");
             for (int i = 1; i <= estimate.length; i++) {
@@ -222,9 +224,17 @@ public class Main {
             for (int i = 1, resultSize = result.size(); i <= resultSize; i++) {
                 Map<Double, Double> map = result.get(i - 1);
                 double x = map.keySet().toArray(new Double[0])[map.size() - 1];
-                double y = map.values().toArray(new Double[0])[map.size() - 1];
-                System.out.printf("x%d = %f ; f%d(x) = %f\n", i, x, i, y);
+                System.out.printf("x%d = %f\n", i, x);
             }
+
+            ArrayList<Double> funcValues = newtonAlgorithmExtended.getFuncRez();
+            for (int i = 1, funcValuesSize = funcValues.size(); i <= funcValuesSize; i++) {
+                Double value = funcValues.get(i-1);
+                System.out.printf("F%d(X) = %f ; ", i, value);
+            }
+
+            System.out.println();
+
             System.out.println("Количество итераций: " + newtonAlgorithmExtended.getIterations());
 
         }

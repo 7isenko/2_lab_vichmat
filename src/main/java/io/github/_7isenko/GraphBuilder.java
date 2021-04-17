@@ -134,7 +134,7 @@ public class GraphBuilder {
                     yValues.add(polynomialFunction.solve(new double[]{x + 0.001, 0}));
                 }
             }
-            chart.addSeries("f(x,y)" + i, xValues, yValues).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line).setMarker(SeriesMarkers.NONE).setLineColor(Color.GREEN);
+            chart.addSeries("f(x,y)" + i, xValues, yValues).setXYSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Line).setMarker(SeriesMarkers.NONE);
             chart.getStyler().setZoomEnabled(true);
         }
 
