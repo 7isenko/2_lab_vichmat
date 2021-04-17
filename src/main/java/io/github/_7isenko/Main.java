@@ -90,7 +90,7 @@ public class Main {
                 }
             }
 
-            double initialEstimate = 0;
+            double initialEstimate;
             if (signum(secondDerivative.solve(xLeft)) == signum(chosenFunction.solve(xLeft))) {
                 initialEstimate = xLeft;
                 System.out.println("Начальным приближением для метода Ньютона была выбрана левая граница отрезка");
@@ -135,7 +135,7 @@ public class Main {
             System.out.println("    { e*cos(x1) - f + x2 = 0");
 
             int chosenAlgorithm = inputReader.readIntFromConsole();
-            if (chosenAlgorithm!= 1 && chosenAlgorithm != 2) {
+            if (chosenAlgorithm != 1 && chosenAlgorithm != 2) {
                 System.out.println("Я такое не знаю!");
                 return;
             }
@@ -150,8 +150,14 @@ public class Main {
             c = inputReader.readDoubleFromConsole();
             System.out.println("Введите коэффициент d: ");
             d = inputReader.readDoubleFromConsole();
+
+            if (chosenAlgorithm == 1) {
+                System.out.println("Коэффициент e не может быть отрицательным");
+            }
             System.out.println("Введите коэффициент e: ");
             e = inputReader.readDoubleFromConsole();
+
+
             System.out.println("Введите коэффициент f: ");
             f = inputReader.readDoubleFromConsole();
 
@@ -162,7 +168,6 @@ public class Main {
             PolynomialFunction[] chosenSolvedFunctions;
             PolynomialFunction[][] derivatives;
             double[] estimate;
-            String[] strFunctions;
             switch (chosenAlgorithm) {
                 case 1:
                     // { sin(a*x1) − x2 + b*x1 + c = 0
@@ -179,9 +184,6 @@ public class Main {
                             {xVec -> a * cos(a * xVec[0]) + b, xVec -> d * 2 * xVec[0]},
                             {xVec -> -1, xVec -> 2 * e * xVec[1]}};
                     estimate = new double[2];
-                    strFunctions = new String[2];
-                    strFunctions[0] = String.format("sin(%.4f*x1) - x2 + %.4f*x1 + %.4f", a, b, c);
-                    strFunctions[1] = String.format("%.4f*x1^2 + %.4f*x2^2 + %.4f", d, e, f);
                     break;
                 case 2:
                     // { a*cos(x1) - b + x2 = 0
@@ -199,10 +201,6 @@ public class Main {
                             {xVec -> a * sin(xVec[0]), xVec -> c * sin(xVec[0]), xVec -> e * sin(xVec[0])},
                             {xVec -> 1, xVec -> 1, xVec -> 1}};
                     estimate = new double[2];
-                    strFunctions = new String[3];
-                    strFunctions[0] = String.format("%.4f*cos(x1) - %.4f + x2", a, b);
-                    strFunctions[1] = String.format("%.4f*cos(x1) - %.4f + x2", c, d);
-                    strFunctions[2] = String.format("%.4f*cos(x1) - %.4f + x2", e, f);
                     break;
                 default:
                     System.out.println("я такое на знаю!");
@@ -229,7 +227,7 @@ public class Main {
 
             ArrayList<Double> funcValues = newtonAlgorithmExtended.getFuncRez();
             for (int i = 1, funcValuesSize = funcValues.size(); i <= funcValuesSize; i++) {
-                Double value = funcValues.get(i-1);
+                Double value = funcValues.get(i - 1);
                 System.out.printf("F%d(X) = %f ; ", i, value);
             }
 
